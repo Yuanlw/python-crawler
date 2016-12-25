@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import requests
 import re
 import time
@@ -17,7 +16,7 @@ headers = {
     'X-Requested-With': 'XMLHttpRequest',
     'Referer': 'http://www.zhihu.com',
     'Accept-Language': 'zh-CN',
-    # 'Accept-Encoding': 'gzip, deflate',
+    'Accept-Encoding': 'gzip, deflate',
     'User-Agent': 'Mozilla/5.0(Windows NT 6.1;WOW64;Trident/7.0;rv:11.0)like Gecko',
     'Host': 'www.zhihu.com'
 }
@@ -35,9 +34,9 @@ def getXSRF(request):
     return strlist[0]
 
 
-
 ##获取_xsrf 值
 _xsrf = getXSRF(request)
+
 
 # print(r.request.headers)
 # print(str(int(time.time()*1000)))
@@ -48,26 +47,22 @@ def getCaptcha():
         r = session.get(Captcha_URL, headers=headers)
         with open('code.gif', 'wb') as f:
             f.write(r.content)
-
-
     except requests.HTTPError as e:
         if hasattr(e, "reason"):
             print("登陆失败..."), e.reason
             return None
 
-getCaptcha()
 
 ##打开验证码图片
 Popen('code.gif', shell=True)
 ##等待手工输入
 captcha = input('captcha: ')
 
-
 ##登录账号等信息
 login_data = {
     '_xsrf': _xsrf,
-    'phone_num': '*****',
-    'password': '******',
+    'phone_num': '****',
+    'password': '*****',
     'remember_me': 'true',
     'captcha': captcha
 }
@@ -76,55 +71,46 @@ login_data = {
 ##登录
 def login():
     try:
-        resp = session.post('https://www.zhihu.com/login/phone_num', data=login_data, headers=headers)
-        # resp.encoding = 'utf-8'
-        # print(type(resp))
-        # data = str(resp.content, 'utf-8')
-        # type(resp.encoding)
-        # s = r.content
-        # print(s)
-        print(u"登陆成功" + resp.text)
-        return session
+        r = session.post('https://www.zhihu.com/login/phone_num', data=login_data, headers=headers)
+        print(r.text)
     except requests.HTTPError as e:
         if hasattr(e, "reason"):
             print("登陆失败..."), e.reason
             return None
 
-#
-# #
-# # ##要抓取的页面
-# def getTopic(url):
-#     try:
-#         # url = "https://www.zhihu.com/topic"
-#         r = session.get(url, headers=headers)
-#         # print(r)
-#         data = r.text
-#         return data
-#     except requests.HTTPError as e:
-#         if hasattr(e, "reason"):
-#             print("登陆失败..."), e.reason
-#             return None
-#
-#
-# #
-# ##解析页面元素
-# def praseData(url):
-#     data = getTopic(url)
-#     bs = BeautifulSoup(data, "html.parser")
-#     questions = bs.find_all('a', {"class": "question_link"})
-#     # print(questions)
-#     for question in questions:
-#         print(question.get_text() + 'https://www.zhihu.com' + question['href'])
-#
-#
-#         #     print(question.get_text())
-#         #     print(question.getText.text)
-#         #     print(question.getText)
-#         # answers=bs.find_all('div',{"class":"zh-summary summary clearfix"})
-#         # for answer in answers:
-#         #     print(answer.get_text())
-#
+
+##要抓取的页面
+def getTopic(url):
+    try:
+        # url = "https://www.zhihu.com/topic"
+        r = session.get(url, headers=headers)
+        # print(r)
+        data = r.text
+        return data
+    except requests.HTTPError as e:
+        if hasattr(e, "reason"):
+            print("登陆失败..."), e.reason
+            return None
+
+
+##解析页面元素
+def praseData(url):
+    data = getTopic(url)
+    bs = BeautifulSoup(data, "html.parser")
+    questions = bs.find_all('a', {"class": "question_link"})
+    # print(questions)
+    for question in questions:
+        print(question.get_text() + 'https://www.zhihu.com' + question['href'])
+
+
+        #     print(question.get_text())
+        #     print(question.getText.text)
+        #     print(question.getText)
+        # answers=bs.find_all('div',{"class":"zh-summary summary clearfix"})
+        # for answer in answers:
+        #     print(answer.get_text())
+
 
 login()
-# url = "https://www.zhihu.com/topic"
-# praseData(url)
+url = "https://www.zhihu.com/topic"
+praseData(url)
